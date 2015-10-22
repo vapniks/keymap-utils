@@ -448,13 +448,15 @@ Also see `kmu-define-keys'."
   (unless (keymapp keymap)
     (error "Not a keymap"))
   (while plist
-    (unless (cdr plist)
-      (error "Odd number of elements in PLIST"))
-    (let ((key (pop plist))
-          (def (pop plist)))
-      (if (memq def '(:remove -> >))
-          (kmu-remove-key keymap key)
-        (kmu-define-key keymap key def)))))
+    (let ((key (pop plist)))
+      (unless (eq key '_)
+        ;;(unless (cdr plist)
+        ;;  (error "Key with missing command in PLIST"))
+        (let ((def (pop plist)))
+          (pcase def
+            ((or `= `~))
+            ((or `> `:remove) (kmu-remove-key keymap key))
+            (_                (kmu-define-key keymap key def))))))))
 
 ;;; Keymap Mapping
 
